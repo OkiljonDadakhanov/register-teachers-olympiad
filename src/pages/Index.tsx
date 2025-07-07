@@ -52,7 +52,7 @@ const Index = () => {
 
   const categories = ["Mutaxassis", "1-toifa", "2-toifa", "Oliy"];
   const experiences = ["0-3 yil", "3-5 yil", "5-10 yil", "10 yildan ko'p"];
-  const languages = ["O'zbek", "Rus", "Ingliz"];
+  const languages = ["O'zbek", "Rus"];
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
