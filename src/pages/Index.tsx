@@ -54,7 +54,7 @@ const Index = () => {
   const experiences = ["0-3 yil", "3-5 yil", "5-10 yil", "10 yildan ko'p"];
   const languages = ["O'zbek", "Rus"];
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
