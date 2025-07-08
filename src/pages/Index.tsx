@@ -1,14 +1,23 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { CalendarIcon, Upload, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -23,6 +32,7 @@ const Index = () => {
     jshshir: "",
     region: "",
     district: "",
+    photo3x4: null as File | null,
     school: "",
     category: "",
     experience: "",
@@ -30,12 +40,12 @@ const Index = () => {
     passportCopy: null as File | null,
     language: "",
     phoneNumber: "",
-    telegramPhone: ""
+    telegramPhone: "",
   });
 
   const regions = [
     "Andijon viloyati",
-    "Buxoro viloyati", 
+    "Buxoro viloyati",
     "Farg'ona viloyati",
     "Jizzax viloyati",
     "Xorazm viloyati",
@@ -47,7 +57,7 @@ const Index = () => {
     "Sirdaryo viloyati",
     "Surxondaryo viloyati",
     "Toshkent viloyati",
-    "Toshkent shahri"
+    "Toshkent shahri",
   ];
 
   const categories = ["Mutaxassis", "1-toifa", "2-toifa", "Oliy"];
@@ -55,26 +65,38 @@ const Index = () => {
   const languages = ["O'zbek", "Rus"];
 
   const handleInputChange = (field: string, value: unknown) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleFileChange = (field: string, file: File | null) => {
-    setFormData(prev => ({ ...prev, [field]: file }));
+    setFormData((prev) => ({ ...prev, [field]: file }));
   };
 
   const validateForm = () => {
     const required = [
-      'fullName', 'birthDate', 'passportSeries', 'jshshir', 
-      'region', 'district', 'school', 'category', 'experience',
-      'workDocument', 'passportCopy', 'language', 'phoneNumber', 'telegramPhone'
+      "fullName",
+      "birthDate",
+      "passportSeries",
+      "jshshir",
+      "region",
+      "district",
+      "school",
+      "category",
+      "experience",
+      "workDocument",
+      "passportCopy",
+      "photo3x4",
+      "language",
+      "phoneNumber",
+      "telegramPhone",
     ];
-    
+
     for (const field of required) {
       if (!formData[field as keyof typeof formData]) {
         toast({
           title: "Xatolik",
           description: "Barcha maydonlarni to'ldiring",
-          variant: "destructive"
+          variant: "destructive",
         });
         return false;
       }
@@ -84,9 +106,9 @@ const Index = () => {
     const phoneRegex = /^\+998\d{9}$/;
     if (!phoneRegex.test(formData.phoneNumber)) {
       toast({
-        title: "Xatolik", 
+        title: "Xatolik",
         description: "Telefon raqam +998 formatida kiritilishi kerak",
-        variant: "destructive"
+        variant: "destructive",
       });
       return false;
     }
@@ -94,8 +116,8 @@ const Index = () => {
     if (!phoneRegex.test(formData.telegramPhone)) {
       toast({
         title: "Xatolik",
-        description: "Telegram telefon raqam +998 formatida kiritilishi kerak", 
-        variant: "destructive"
+        description: "Telegram telefon raqam +998 formatida kiritilishi kerak",
+        variant: "destructive",
       });
       return false;
     }
@@ -105,15 +127,15 @@ const Index = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     console.log("Form submitted:", formData);
     toast({
       title: "Muvaffaqiyat!",
-      description: "Ro'yxatdan o'tish muvaffaqiyatli yakunlandi"
+      description: "Ro'yxatdan o'tish muvaffaqiyatli yakunlandi",
     });
-    
+
     setTimeout(() => {
       navigate("/success");
     }, 1000);
@@ -132,13 +154,16 @@ const Index = () => {
         <Alert className="mb-6 border-amber-200 bg-amber-50">
           <AlertTriangle className="h-4 w-4 text-amber-600" />
           <AlertDescription className="text-amber-800">
-            <strong>Diqqat:</strong> Litsey o'qituvchilari ushbu olimpiadada qatnasha olmaydi.
+            <strong>Diqqat:</strong> Litsey o'qituvchilari ushbu olimpiadada
+            qatnasha olmaydi.
           </AlertDescription>
         </Alert>
 
         <Card className="shadow-xl border-0">
           <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
-            <CardTitle className="text-2xl text-center">Ro'yxatdan o'tish</CardTitle>
+            <CardTitle className="text-2xl text-center">
+              Ro'yxatdan o'tish
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -147,14 +172,18 @@ const Index = () => {
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
                   Shaxsiy ma'lumotlar
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="fullName">F.I.SH (Familya Ism Sharifi)</Label>
+                    <Label htmlFor="fullName">
+                      F.I.SH (Familya Ism Sharifi)
+                    </Label>
                     <Input
                       id="fullName"
                       value={formData.fullName}
-                      onChange={(e) => handleInputChange('fullName', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("fullName", e.target.value)
+                      }
                       placeholder="Masalan: Aliyev Ali Aliovich"
                       className="mt-1"
                     />
@@ -172,30 +201,70 @@ const Index = () => {
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {formData.birthDate ? format(formData.birthDate, "dd/MM/yyyy") : "Sanani tanlang"}
+                          {formData.birthDate
+                            ? format(formData.birthDate, "dd/MM/yyyy")
+                            : "Sanani tanlang"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
                           selected={formData.birthDate}
-                          onSelect={(date) => handleInputChange('birthDate', date)}
-                          disabled={(date) => date > new Date() || date < new Date("1940-01-01")}
+                          onSelect={(date) =>
+                            handleInputChange("birthDate", date)
+                          }
+                          disabled={(date) =>
+                            date > new Date() || date < new Date("1940-01-01")
+                          }
                           initialFocus
                           className="pointer-events-auto"
                         />
                       </PopoverContent>
                     </Popover>
                   </div>
+                  <div>
+                    <Label>3x4 rasm (JPEG, PNG)</Label>
+                    <div className="mt-1">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png"
+                        onChange={(e) =>
+                          handleFileChange(
+                            "photo3x4",
+                            e.target.files?.[0] || null
+                          )
+                        }
+                        className="hidden"
+                        id="photo3x4"
+                      />
+                      <label
+                        htmlFor="photo3x4"
+                        className="flex items-center justify-center w-full h-20 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 transition-colors"
+                      >
+                        <div className="text-center">
+                          <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
+                          <span className="text-sm text-gray-600">
+                            {formData.photo3x4
+                              ? formData.photo3x4.name
+                              : "Rasmni yuklang"}
+                          </span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="passportSeries">Passport seriya va raqami</Label>
+                    <Label htmlFor="passportSeries">
+                      Passport seriya va raqami
+                    </Label>
                     <Input
                       id="passportSeries"
                       value={formData.passportSeries}
-                      onChange={(e) => handleInputChange('passportSeries', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("passportSeries", e.target.value)
+                      }
                       placeholder="AB1234567"
                       className="mt-1"
                     />
@@ -206,7 +275,9 @@ const Index = () => {
                     <Input
                       id="jshshir"
                       value={formData.jshshir}
-                      onChange={(e) => handleInputChange('jshshir', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("jshshir", e.target.value)
+                      }
                       placeholder="12345678901234"
                       className="mt-1"
                     />
@@ -219,11 +290,15 @@ const Index = () => {
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
                   Manzil ma'lumotlari
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <Label>Hudud</Label>
-                    <Select onValueChange={(value) => handleInputChange('region', value)}>
+                    <Select
+                      onValueChange={(value) =>
+                        handleInputChange("region", value)
+                      }
+                    >
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Hududni tanlang" />
                       </SelectTrigger>
@@ -239,7 +314,11 @@ const Index = () => {
 
                   <div>
                     <Label>Tuman</Label>
-                    <Select onValueChange={(value) => handleInputChange('district', value)}>
+                    <Select
+                      onValueChange={(value) =>
+                        handleInputChange("district", value)
+                      }
+                    >
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Tumanni tanlang" />
                       </SelectTrigger>
@@ -253,7 +332,11 @@ const Index = () => {
 
                   <div>
                     <Label>Maktab</Label>
-                    <Select onValueChange={(value) => handleInputChange('school', value)}>
+                    <Select
+                      onValueChange={(value) =>
+                        handleInputChange("school", value)
+                      }
+                    >
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Maktabni tanlang" />
                       </SelectTrigger>
@@ -272,11 +355,15 @@ const Index = () => {
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
                   Kasb ma'lumotlari
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label>Toifa</Label>
-                    <Select onValueChange={(value) => handleInputChange('category', value)}>
+                    <Select
+                      onValueChange={(value) =>
+                        handleInputChange("category", value)
+                      }
+                    >
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Toifani tanlang" />
                       </SelectTrigger>
@@ -292,7 +379,11 @@ const Index = () => {
 
                   <div>
                     <Label>Pedagogik staj</Label>
-                    <Select onValueChange={(value) => handleInputChange('experience', value)}>
+                    <Select
+                      onValueChange={(value) =>
+                        handleInputChange("experience", value)
+                      }
+                    >
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Stajni tanlang" />
                       </SelectTrigger>
@@ -309,7 +400,11 @@ const Index = () => {
 
                 <div>
                   <Label>Ta'lim tili</Label>
-                  <Select onValueChange={(value) => handleInputChange('language', value)}>
+                  <Select
+                    onValueChange={(value) =>
+                      handleInputChange("language", value)
+                    }
+                  >
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Tilni tanlang" />
                     </SelectTrigger>
@@ -329,7 +424,7 @@ const Index = () => {
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
                   Hujjatlar
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label>Ish joyidan ma'lumot (PDF)</Label>
@@ -337,7 +432,12 @@ const Index = () => {
                       <input
                         type="file"
                         accept=".pdf"
-                        onChange={(e) => handleFileChange('workDocument', e.target.files?.[0] || null)}
+                        onChange={(e) =>
+                          handleFileChange(
+                            "workDocument",
+                            e.target.files?.[0] || null
+                          )
+                        }
                         className="hidden"
                         id="workDocument"
                       />
@@ -348,7 +448,9 @@ const Index = () => {
                         <div className="text-center">
                           <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
                           <span className="text-sm text-gray-600">
-                            {formData.workDocument ? formData.workDocument.name : "Faylni yuklang"}
+                            {formData.workDocument
+                              ? formData.workDocument.name
+                              : "Faylni yuklang"}
                           </span>
                         </div>
                       </label>
@@ -361,7 +463,12 @@ const Index = () => {
                       <input
                         type="file"
                         accept=".pdf"
-                        onChange={(e) => handleFileChange('passportCopy', e.target.files?.[0] || null)}
+                        onChange={(e) =>
+                          handleFileChange(
+                            "passportCopy",
+                            e.target.files?.[0] || null
+                          )
+                        }
                         className="hidden"
                         id="passportCopy"
                       />
@@ -372,7 +479,9 @@ const Index = () => {
                         <div className="text-center">
                           <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
                           <span className="text-sm text-gray-600">
-                            {formData.passportCopy ? formData.passportCopy.name : "Faylni yuklang"}
+                            {formData.passportCopy
+                              ? formData.passportCopy.name
+                              : "Faylni yuklang"}
                           </span>
                         </div>
                       </label>
@@ -386,25 +495,33 @@ const Index = () => {
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
                   Aloqa ma'lumotlari
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="phoneNumber">Bog'lanish uchun telefon raqam</Label>
+                    <Label htmlFor="phoneNumber">
+                      Bog'lanish uchun telefon raqam
+                    </Label>
                     <Input
                       id="phoneNumber"
                       value={formData.phoneNumber}
-                      onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("phoneNumber", e.target.value)
+                      }
                       placeholder="+998901234567"
                       className="mt-1"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="telegramPhone">Telegramga bog'langan telefon raqam</Label>
+                    <Label htmlFor="telegramPhone">
+                      Telegramga bog'langan telefon raqam
+                    </Label>
                     <Input
                       id="telegramPhone"
                       value={formData.telegramPhone}
-                      onChange={(e) => handleInputChange('telegramPhone', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("telegramPhone", e.target.value)
+                      }
                       placeholder="+998901234567"
                       className="mt-1"
                     />
@@ -412,8 +529,8 @@ const Index = () => {
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 text-lg font-semibold"
               >
                 Ro'yxatdan o'tish
