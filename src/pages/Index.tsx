@@ -32,12 +32,12 @@ const Index = () => {
     jshshir: "",
     region: "",
     district: "",
-    photo3x4: null as File | null,
+    // photo3x4: null as File | null,
     school: "",
     category: "",
     experience: "",
-    workDocument: null as File | null,
-    passportCopy: null as File | null,
+    // workDocument: null as File | null,
+    // passportCopy: null as File | null,
     language: "",
     phoneNumber: "",
     telegramPhone: "",
@@ -83,9 +83,9 @@ const Index = () => {
       "school",
       "category",
       "experience",
-      "workDocument",
-      "passportCopy",
-      "photo3x4",
+      // "workDocument",
+      // "passportCopy",
+      // "photo3x4",
       "language",
       "phoneNumber",
       "telegramPhone",
@@ -154,7 +154,7 @@ const Index = () => {
         <Alert className="mb-6 border-amber-200 bg-amber-50">
           <AlertTriangle className="h-4 w-4 text-amber-600" />
           <AlertDescription className="text-amber-800">
-            <strong>Diqqat:</strong> Litsey o'qituvchilari ushbu olimpiadada
+            <strong>Diqqat:</strong> Litsey va xususiy maktab o'qituvchilari ushbu olimpiadada
             qatnasha olmaydi.
           </AlertDescription>
         </Alert>
@@ -222,7 +222,7 @@ const Index = () => {
                       </PopoverContent>
                     </Popover>
                   </div>
-                  <div>
+                  {/* <div>
                     <Label>3x4 rasm (JPEG, PNG)</Label>
                     <div className="mt-1">
                       <input
@@ -251,7 +251,7 @@ const Index = () => {
                         </div>
                       </label>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -419,7 +419,7 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Documents */}
+              {/* Documents
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
                   Hujjatlar
@@ -488,7 +488,7 @@ const Index = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Contact Information */}
               <div className="space-y-4">
