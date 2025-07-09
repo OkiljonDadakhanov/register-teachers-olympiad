@@ -155,9 +155,9 @@ const Index = () => {
       <h1 className="text-3xl font-bold text-center text-gray-900">
         O'qituvchilar olimpiadasi
       </h1>
-      <p className="text-center text-red-600 font-medium mb-4">
+      {/* <p className="text-center text-red-600 font-medium mb-4">
         Xususiy maktab va litsey o'qituvchilari qatnasha olmaydi
-      </p>
+      </p> */}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Label htmlFor="lastName">Familiyangiz</Label>
