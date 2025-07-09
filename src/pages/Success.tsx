@@ -31,7 +31,6 @@ const Success = () => {
               </p>
               <ul className="text-sm text-blue-700 mt-2 text-left">
                 <li>• Arizangiz ko'rib chiqiladi</li>
-                <li>• 3-5 ish kuni ichida javob beramiz</li>
                 <li>• Qo'shimcha ma'lumot kerak bo'lsa, bog'lanamiz</li>
               </ul>
             </div>

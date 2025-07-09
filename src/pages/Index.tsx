@@ -10,37 +10,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon, Upload, AlertTriangle } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 
 const Index = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    fullName: "",
-    birthDate: undefined as Date | undefined,
+    lastName: "",
+    firstName: "",
+    middleName: "",
+    birthDate: "",
     passportSeries: "",
     jshshir: "",
     region: "",
     district: "",
-    // photo3x4: null as File | null,
     school: "",
     category: "",
     experience: "",
-    // workDocument: null as File | null,
-    // passportCopy: null as File | null,
     language: "",
-    phoneNumber: "",
-    telegramPhone: "",
+    phoneNumber: "+998",
+    telegramPhone: "+998",
   });
 
   const regions = [
@@ -59,22 +47,33 @@ const Index = () => {
     "Toshkent viloyati",
     "Toshkent shahri",
   ];
+  const tuman = ["Andijon tumani", "Buxoro tumani", "Farg'ona tumani"];
+
+  const maktab = ["Andijon maktabi", "Buxoro maktabi", "Farg'ona maktabi"];
 
   const categories = ["Mutaxassis", "1-toifa", "2-toifa", "Oliy"];
   const experiences = ["0-3 yil", "3-5 yil", "5-10 yil", "10 yildan ko'p"];
   const languages = ["O'zbek", "Rus"];
 
-  const handleInputChange = (field: string, value: unknown) => {
+  const handleInputChange = (field: string, value: string) => {
+    if (field === "birthDate") {
+      value = value
+        .replace(/[^\d]/g, "")
+        .replace(/(\d{2})(\d{0,2})(\d{0,4})/, (_, d, m, y) =>
+          [d, m, y].filter(Boolean).join("/")
+        );
+    }
+    if (field === "telegramPhone" && !value.startsWith("+998")) {
+      value = "+998" + value.replace(/^\+998/, "");
+    }
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleFileChange = (field: string, file: File | null) => {
-    setFormData((prev) => ({ ...prev, [field]: file }));
   };
 
   const validateForm = () => {
     const required = [
-      "fullName",
+      "lastName",
+      "firstName",
+      "middleName",
       "birthDate",
       "passportSeries",
       "jshshir",
@@ -83,9 +82,6 @@ const Index = () => {
       "school",
       "category",
       "experience",
-      // "workDocument",
-      // "passportCopy",
-      // "photo3x4",
       "language",
       "phoneNumber",
       "telegramPhone",
@@ -102,12 +98,12 @@ const Index = () => {
       }
     }
 
-    // Phone number validation
     const phoneRegex = /^\+998\d{9}$/;
     if (!phoneRegex.test(formData.phoneNumber)) {
       toast({
         title: "Xatolik",
-        description: "Telefon raqam +998 formatida kiritilishi kerak",
+        description:
+          "Telefon raqam +998 formatida bo'lishi va 12 ta raqamdan oshmasligi kerak",
         variant: "destructive",
       });
       return false;
@@ -116,7 +112,18 @@ const Index = () => {
     if (!phoneRegex.test(formData.telegramPhone)) {
       toast({
         title: "Xatolik",
-        description: "Telegram telefon raqam +998 formatida kiritilishi kerak",
+        description:
+          "Telegram raqam +998 formatida va 12 raqamdan iborat bo'lishi kerak",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!/^[3-6]\d{13}$/.test(formData.jshshir)) {
+      toast({
+        title: "Xatolik",
+        description:
+          "JSHSHIR 14 xonali bo'lishi va 3,4,5,6 bilan boshlanishi kerak",
         variant: "destructive",
       });
       return false;
@@ -127,7 +134,6 @@ const Index = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     console.log("Form submitted:", formData);
@@ -142,404 +148,172 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            O'qituvchilar Olimpiadasi
-          </h1>
-          <p className="text-lg text-gray-600">Ro'yxatdan o'tish formasi</p>
-        </div>
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 max-w-xl mx-auto p-6 bg-white shadow-md rounded-xl"
+    >
+      <h1 className="text-3xl font-bold text-center text-gray-900">
+        O'qituvchilar olimpiadasi
+      </h1>
+      <p className="text-center text-red-600 font-medium mb-4">
+        Xususiy maktab va litsey o'qituvchilari qatnasha olmaydi
+      </p>
 
-        <Alert className="mb-6 border-amber-200 bg-amber-50">
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
-          <AlertDescription className="text-amber-800">
-            <strong>Diqqat:</strong> Litsey va xususiy maktab o'qituvchilari ushbu olimpiadada
-            qatnasha olmaydi.
-          </AlertDescription>
-        </Alert>
-
-        <Card className="shadow-xl border-0">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
-            <CardTitle className="text-2xl text-center">
-              Ro'yxatdan o'tish
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Personal Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-                  Shaxsiy ma'lumotlar
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="fullName">
-                      F.I.SH (Familya Ism Sharifi)
-                    </Label>
-                    <Input
-                      id="fullName"
-                      value={formData.fullName}
-                      onChange={(e) =>
-                        handleInputChange("fullName", e.target.value)
-                      }
-                      placeholder="Masalan: Aliyev Ali Aliovich"
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Tug'ilgan sana</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full justify-start text-left font-normal mt-1",
-                            !formData.birthDate && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {formData.birthDate
-                            ? format(formData.birthDate, "dd/MM/yyyy")
-                            : "Sanani tanlang"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={formData.birthDate}
-                          onSelect={(date) =>
-                            handleInputChange("birthDate", date)
-                          }
-                          disabled={(date) =>
-                            date > new Date() || date < new Date("1940-01-01")
-                          }
-                          initialFocus
-                          className="pointer-events-auto"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  {/* <div>
-                    <Label>3x4 rasm (JPEG, PNG)</Label>
-                    <div className="mt-1">
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png"
-                        onChange={(e) =>
-                          handleFileChange(
-                            "photo3x4",
-                            e.target.files?.[0] || null
-                          )
-                        }
-                        className="hidden"
-                        id="photo3x4"
-                      />
-                      <label
-                        htmlFor="photo3x4"
-                        className="flex items-center justify-center w-full h-20 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 transition-colors"
-                      >
-                        <div className="text-center">
-                          <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
-                          <span className="text-sm text-gray-600">
-                            {formData.photo3x4
-                              ? formData.photo3x4.name
-                              : "Rasmni yuklang"}
-                          </span>
-                        </div>
-                      </label>
-                    </div>
-                  </div> */}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="passportSeries">
-                      Passport seriya va raqami
-                    </Label>
-                    <Input
-                      id="passportSeries"
-                      value={formData.passportSeries}
-                      onChange={(e) =>
-                        handleInputChange("passportSeries", e.target.value)
-                      }
-                      placeholder="AB1234567"
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="jshshir">JSHSHIR raqami</Label>
-                    <Input
-                      id="jshshir"
-                      value={formData.jshshir}
-                      onChange={(e) =>
-                        handleInputChange("jshshir", e.target.value)
-                      }
-                      placeholder="12345678901234"
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Location Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-                  Manzil ma'lumotlari
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label>Hudud</Label>
-                    <Select
-                      onValueChange={(value) =>
-                        handleInputChange("region", value)
-                      }
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Hududni tanlang" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {regions.map((region) => (
-                          <SelectItem key={region} value={region}>
-                            {region}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label>Tuman</Label>
-                    <Select
-                      onValueChange={(value) =>
-                        handleInputChange("district", value)
-                      }
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Tumanni tanlang" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="district1">Tuman 1</SelectItem>
-                        <SelectItem value="district2">Tuman 2</SelectItem>
-                        <SelectItem value="district3">Tuman 3</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label>Maktab</Label>
-                    <Select
-                      onValueChange={(value) =>
-                        handleInputChange("school", value)
-                      }
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Maktabni tanlang" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="school1">1-maktab</SelectItem>
-                        <SelectItem value="school2">2-maktab</SelectItem>
-                        <SelectItem value="school3">3-maktab</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Professional Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-                  Kasb ma'lumotlari
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Toifa</Label>
-                    <Select
-                      onValueChange={(value) =>
-                        handleInputChange("category", value)
-                      }
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Toifani tanlang" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label>Pedagogik staj</Label>
-                    <Select
-                      onValueChange={(value) =>
-                        handleInputChange("experience", value)
-                      }
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Stajni tanlang" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {experiences.map((exp) => (
-                          <SelectItem key={exp} value={exp}>
-                            {exp}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div>
-                  <Label>Ta'lim tili</Label>
-                  <Select
-                    onValueChange={(value) =>
-                      handleInputChange("language", value)
-                    }
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Tilni tanlang" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {languages.map((lang) => (
-                        <SelectItem key={lang} value={lang}>
-                          {lang}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Documents
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-                  Hujjatlar
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Ish joyidan ma'lumot (PDF)</Label>
-                    <div className="mt-1">
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        onChange={(e) =>
-                          handleFileChange(
-                            "workDocument",
-                            e.target.files?.[0] || null
-                          )
-                        }
-                        className="hidden"
-                        id="workDocument"
-                      />
-                      <label
-                        htmlFor="workDocument"
-                        className="flex items-center justify-center w-full h-20 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 transition-colors"
-                      >
-                        <div className="text-center">
-                          <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
-                          <span className="text-sm text-gray-600">
-                            {formData.workDocument
-                              ? formData.workDocument.name
-                              : "Faylni yuklang"}
-                          </span>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label>Passport kopiyasi (PDF)</Label>
-                    <div className="mt-1">
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        onChange={(e) =>
-                          handleFileChange(
-                            "passportCopy",
-                            e.target.files?.[0] || null
-                          )
-                        }
-                        className="hidden"
-                        id="passportCopy"
-                      />
-                      <label
-                        htmlFor="passportCopy"
-                        className="flex items-center justify-center w-full h-20 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 transition-colors"
-                      >
-                        <div className="text-center">
-                          <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
-                          <span className="text-sm text-gray-600">
-                            {formData.passportCopy
-                              ? formData.passportCopy.name
-                              : "Faylni yuklang"}
-                          </span>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
-
-              {/* Contact Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-                  Aloqa ma'lumotlari
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="phoneNumber">
-                      Bog'lanish uchun telefon raqam
-                    </Label>
-                    <Input
-                      id="phoneNumber"
-                      value={formData.phoneNumber}
-                      onChange={(e) =>
-                        handleInputChange("phoneNumber", e.target.value)
-                      }
-                      placeholder="+998901234567"
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="telegramPhone">
-                      Telegramga bog'langan telefon raqam
-                    </Label>
-                    <Input
-                      id="telegramPhone"
-                      value={formData.telegramPhone}
-                      onChange={(e) =>
-                        handleInputChange("telegramPhone", e.target.value)
-                      }
-                      placeholder="+998901234567"
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 text-lg font-semibold"
-              >
-                Ro'yxatdan o'tish
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Label htmlFor="lastName">Familiyangiz</Label>
+        <Label htmlFor="firstName">Ismingiz</Label>
+        <Label htmlFor="middleName">Sharifingiz</Label>
+        <Input
+          value={formData.lastName}
+          onChange={(e) => handleInputChange("lastName", e.target.value)}
+          placeholder="Familyangiz"
+        />
+        <Input
+          value={formData.firstName}
+          onChange={(e) => handleInputChange("firstName", e.target.value)}
+          placeholder="Ismingiz"
+        />
+        <Input
+          value={formData.middleName}
+          onChange={(e) => handleInputChange("middleName", e.target.value)}
+          placeholder="Sharifingiz"
+        />
       </div>
-    </div>
+
+   
+
+      <Input
+        type="text"
+        placeholder="Tug'ilgan sana (kun/oy/yil)"
+        value={formData.birthDate}
+        onChange={(e) => handleInputChange("birthDate", e.target.value)}
+      />
+      <Input
+        placeholder="Passport seriya va raqami"
+        value={formData.passportSeries}
+        onChange={(e) => handleInputChange("passportSeries", e.target.value)}
+      />
+<div>
+  <Label htmlFor="jshshir">JSHSHIR raqami</Label>
+  
+  <div className="flex flex-col gap-6">
+    <img
+      src="/passport.jpg"
+      alt="JSHSHIR ko'rsatmasi"
+      className="w-full max-w-md h-auto object-contain border rounded"
+    />
+
+    <Input
+      id="jshshir"
+      placeholder="14 xonali JSHSHIR"
+      value={formData.jshshir}
+      onChange={(e) => handleInputChange("jshshir", e.target.value)}
+      className="max-w-md"
+    />
+  </div>
+</div>
+
+
+      <Select onValueChange={(value) => handleInputChange("region", value)}>
+        <SelectTrigger>
+          <SelectValue placeholder="Hududni tanlang" />
+        </SelectTrigger>
+        <SelectContent>
+          {regions.map((r) => (
+            <SelectItem key={r} value={r}>
+              {r}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select onValueChange={(value) => handleInputChange("district", value)}>
+        <SelectTrigger>
+          <SelectValue placeholder="Tuman" />
+        </SelectTrigger>
+        <SelectContent>
+          {tuman.map((t) => (
+            <SelectItem key={t} value={t}>
+              {t}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select onValueChange={(value) => handleInputChange("school", value)}>
+        <SelectTrigger>
+          <SelectValue placeholder="Maktab" />
+        </SelectTrigger>
+        <SelectContent>
+          {maktab.map((m) => (
+            <SelectItem key={m} value={m}>
+              {m}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select onValueChange={(value) => handleInputChange("category", value)}>
+        <SelectTrigger>
+          <SelectValue placeholder="Toifa" />
+        </SelectTrigger>
+        <SelectContent>
+          {categories.map((c) => (
+            <SelectItem key={c} value={c}>
+              {c}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select onValueChange={(value) => handleInputChange("experience", value)}>
+        <SelectTrigger>
+          <SelectValue placeholder="Pedagogik staj" />
+        </SelectTrigger>
+        <SelectContent>
+          {experiences.map((e) => (
+            <SelectItem key={e} value={e}>
+              {e}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select onValueChange={(value) => handleInputChange("language", value)}>
+        <SelectTrigger>
+          <SelectValue placeholder="Ta'lim tili" />
+        </SelectTrigger>
+        <SelectContent>
+          {languages.map((l) => (
+            <SelectItem key={l} value={l}>
+              {l}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Label htmlFor="phoneNumber">Telefon raqamingiz</Label>
+
+      <Input
+        placeholder="Telefon raqam (+998901234567)"
+        value={formData.phoneNumber}
+        onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+      />
+      <Label htmlFor="telegramPhone">Telegram raqamingiz</Label>
+
+      <Input
+        placeholder="Telegram raqam (+998901234567)"
+        value={formData.telegramPhone}
+        onChange={(e) => handleInputChange("telegramPhone", e.target.value)}
+      />
+
+      <Button
+        type="submit"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg"
+      >
+        Yuborish
+      </Button>
+    </form>
   );
 };
 
