@@ -20,6 +20,7 @@ const Index = () => {
     middleName: "",
     birthDate: "",
     passportSeries: "",
+    passportNumber: "",
     jshshir: "",
     region: "",
     district: "",
@@ -63,6 +64,16 @@ const Index = () => {
           [d, m, y].filter(Boolean).join("/")
         );
     }
+    if (field === "passportSeries") {
+      value = value
+        .toUpperCase()
+        .replace(/[^A-Z]/g, "")
+        .slice(0, 2);
+    }
+
+    if (field === "passportNumber") {
+      value = value.replace(/\D/g, "").slice(0, 7);
+    }
     if (field === "telegramPhone" && !value.startsWith("+998")) {
       value = "+998" + value.replace(/^\+998/, "");
     }
@@ -76,6 +87,7 @@ const Index = () => {
       "middleName",
       "birthDate",
       "passportSeries",
+      "passportNumber",
       "jshshir",
       "region",
       "district",
@@ -85,6 +97,7 @@ const Index = () => {
       "language",
       "phoneNumber",
       "telegramPhone",
+      "passportNumber",
     ];
 
     for (const field of required) {
@@ -150,163 +163,219 @@ const Index = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-6 max-w-xl mx-auto p-6 bg-white shadow-md rounded-xl"
+      className="space-y-8 max-w-xl mx-auto p-8 bg-white shadow-lg rounded-2xl"
     >
-      <h1 className="text-3xl font-bold text-center text-gray-900">
-        O'qituvchilar olimpiadasi
+      <h1 className="text-3xl font-bold text-center text-gray-800 mb-4">
+        O'qituvchilar Olimpiadasi
       </h1>
-      {/* <p className="text-center text-red-600 font-medium mb-4">
-        Xususiy maktab va litsey o'qituvchilari qatnasha olmaydi
-      </p> */}
 
+      {/* Personal Info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Label htmlFor="lastName">Familiyangiz</Label>
-        <Label htmlFor="firstName">Ismingiz</Label>
-        <Label htmlFor="middleName">Sharifingiz</Label>
+        <div className="flex flex-col">
+          <Label className="mb-1">Familiya</Label>
+          <Input
+            value={formData.lastName}
+            onChange={(e) => handleInputChange("lastName", e.target.value)}
+            placeholder="Familiyangiz"
+          />
+        </div>
+        <div className="flex flex-col">
+          <Label className="mb-1">Ism</Label>
+          <Input
+            value={formData.firstName}
+            onChange={(e) => handleInputChange("firstName", e.target.value)}
+            placeholder="Ismingiz"
+          />
+        </div>
+        <div className="flex flex-col">
+          <Label className="mb-1">Sharif</Label>
+          <Input
+            value={formData.middleName}
+            onChange={(e) => handleInputChange("middleName", e.target.value)}
+            placeholder="Sharifingiz"
+          />
+        </div>
+      </div>
+
+      {/* Birth Date */}
+      <div className="flex flex-col">
+        <Label className="mb-1">Tug'ilgan sana</Label>
         <Input
-          value={formData.lastName}
-          onChange={(e) => handleInputChange("lastName", e.target.value)}
-          placeholder="Familyangiz"
-        />
-        <Input
-          value={formData.firstName}
-          onChange={(e) => handleInputChange("firstName", e.target.value)}
-          placeholder="Ismingiz"
-        />
-        <Input
-          value={formData.middleName}
-          onChange={(e) => handleInputChange("middleName", e.target.value)}
-          placeholder="Sharifingiz"
+          placeholder="Kun/oy/yil"
+          value={formData.birthDate}
+          onChange={(e) => handleInputChange("birthDate", e.target.value)}
         />
       </div>
 
-   
+      {/* Passport */}
+      <div className="flex flex-col">
+        <Label className="mb-1">Passport ma'lumotlari</Label>
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            placeholder="Seriya (AA)"
+            value={formData.passportSeries}
+            onChange={(e) =>
+              handleInputChange("passportSeries", e.target.value)
+            }
+            maxLength={2}
+          />
+          <Input
+            placeholder="Raqami (1234567)"
+            value={formData.passportNumber}
+            onChange={(e) =>
+              handleInputChange("passportNumber", e.target.value)
+            }
+            maxLength={7}
+          />
+        </div>
+      </div>
 
-      <Input
-        type="text"
-        placeholder="Tug'ilgan sana (kun/oy/yil)"
-        value={formData.birthDate}
-        onChange={(e) => handleInputChange("birthDate", e.target.value)}
-      />
-      <Input
-        placeholder="Passport seriya va raqami"
-        value={formData.passportSeries}
-        onChange={(e) => handleInputChange("passportSeries", e.target.value)}
-      />
-<div>
-  <Label htmlFor="jshshir">JSHSHIR raqami</Label>
-  
-  <div className="flex flex-col gap-6">
-    <img
-      src="/passport.jpg"
-      alt="JSHSHIR ko'rsatmasi"
-      className="w-full max-w-md h-auto object-contain border rounded"
-    />
+      {/* JSHSHIR */}
+      <div className="flex flex-col gap-4">
+        <Label className="mb-1">JSHSHIR</Label>
+        <img
+          src="/passport.jpg"
+          alt="JSHSHIR ko'rsatmasi"
+          className="w-full max-w-md mx-auto object-contain border rounded-lg"
+        />
+        <Input
+          placeholder="14 xonali JSHSHIR"
+          value={formData.jshshir}
+          onChange={(e) => handleInputChange("jshshir", e.target.value)}
+        />
+      </div>
 
-    <Input
-      id="jshshir"
-      placeholder="14 xonali JSHSHIR"
-      value={formData.jshshir}
-      onChange={(e) => handleInputChange("jshshir", e.target.value)}
-      className="max-w-md"
-    />
-  </div>
-</div>
+      {/* Region, District, School */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <Label className="mb-1">Hudud</Label>
+          <Select onValueChange={(value) => handleInputChange("region", value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Tanlang" />
+            </SelectTrigger>
+            <SelectContent>
+              {regions.map((r) => (
+                <SelectItem key={r} value={r}>
+                  {r}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
+        <div>
+          <Label className="mb-1">Tuman</Label>
+          <Select
+            onValueChange={(value) => handleInputChange("district", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Tanlang" />
+            </SelectTrigger>
+            <SelectContent>
+              {tuman.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {t}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      <Select onValueChange={(value) => handleInputChange("region", value)}>
-        <SelectTrigger>
-          <SelectValue placeholder="Hududni tanlang" />
-        </SelectTrigger>
-        <SelectContent>
-          {regions.map((r) => (
-            <SelectItem key={r} value={r}>
-              {r}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <div>
+          <Label className="mb-1">Maktab</Label>
+          <Select onValueChange={(value) => handleInputChange("school", value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Tanlang" />
+            </SelectTrigger>
+            <SelectContent>
+              {maktab.map((m) => (
+                <SelectItem key={m} value={m}>
+                  {m}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-      <Select onValueChange={(value) => handleInputChange("district", value)}>
-        <SelectTrigger>
-          <SelectValue placeholder="Tuman" />
-        </SelectTrigger>
-        <SelectContent>
-          {tuman.map((t) => (
-            <SelectItem key={t} value={t}>
-              {t}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {/* Category, Experience, Language */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <Label className="mb-1">Toifa</Label>
+          <Select
+            onValueChange={(value) => handleInputChange("category", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Tanlang" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      <Select onValueChange={(value) => handleInputChange("school", value)}>
-        <SelectTrigger>
-          <SelectValue placeholder="Maktab" />
-        </SelectTrigger>
-        <SelectContent>
-          {maktab.map((m) => (
-            <SelectItem key={m} value={m}>
-              {m}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <div>
+          <Label className="mb-1">Staj</Label>
+          <Select
+            onValueChange={(value) => handleInputChange("experience", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Tanlang" />
+            </SelectTrigger>
+            <SelectContent>
+              {experiences.map((e) => (
+                <SelectItem key={e} value={e}>
+                  {e}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      <Select onValueChange={(value) => handleInputChange("category", value)}>
-        <SelectTrigger>
-          <SelectValue placeholder="Toifa" />
-        </SelectTrigger>
-        <SelectContent>
-          {categories.map((c) => (
-            <SelectItem key={c} value={c}>
-              {c}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <div>
+          <Label className="mb-1">Ta'lim tili</Label>
+          <Select
+            onValueChange={(value) => handleInputChange("language", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Tanlang" />
+            </SelectTrigger>
+            <SelectContent>
+              {languages.map((l) => (
+                <SelectItem key={l} value={l}>
+                  {l}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-      <Select onValueChange={(value) => handleInputChange("experience", value)}>
-        <SelectTrigger>
-          <SelectValue placeholder="Pedagogik staj" />
-        </SelectTrigger>
-        <SelectContent>
-          {experiences.map((e) => (
-            <SelectItem key={e} value={e}>
-              {e}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {/* Phone Numbers */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-col">
+          <Label className="mb-1">Telefon raqam</Label>
+          <Input
+            placeholder="+998901234567"
+            value={formData.phoneNumber}
+            onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+          />
+        </div>
+        <div className="flex flex-col">
+          <Label className="mb-1">Telegram raqam</Label>
+          <Input
+            placeholder="+998901234567"
+            value={formData.telegramPhone}
+            onChange={(e) => handleInputChange("telegramPhone", e.target.value)}
+          />
+        </div>
+      </div>
 
-      <Select onValueChange={(value) => handleInputChange("language", value)}>
-        <SelectTrigger>
-          <SelectValue placeholder="Ta'lim tili" />
-        </SelectTrigger>
-        <SelectContent>
-          {languages.map((l) => (
-            <SelectItem key={l} value={l}>
-              {l}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <Label htmlFor="phoneNumber">Telefon raqamingiz</Label>
-
-      <Input
-        placeholder="Telefon raqam (+998901234567)"
-        value={formData.phoneNumber}
-        onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-      />
-      <Label htmlFor="telegramPhone">Telegram raqamingiz</Label>
-
-      <Input
-        placeholder="Telegram raqam (+998901234567)"
-        value={formData.telegramPhone}
-        onChange={(e) => handleInputChange("telegramPhone", e.target.value)}
-      />
-
+      {/* Submit */}
       <Button
         type="submit"
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg"
