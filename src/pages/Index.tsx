@@ -1,5 +1,8 @@
-import { useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,29 +35,55 @@ const Index = () => {
     telegramPhone: "+998",
   });
 
-  const regions = [
-    "Andijon viloyati",
-    "Buxoro viloyati",
-    "Farg'ona viloyati",
-    "Jizzax viloyati",
-    "Xorazm viloyati",
-    "Namangan viloyati",
-    "Navoiy viloyati",
-    "Qashqadaryo viloyati",
-    "Qoraqalpog'iston Respublikasi",
-    "Samarqand viloyati",
-    "Sirdaryo viloyati",
-    "Surxondaryo viloyati",
-    "Toshkent viloyati",
-    "Toshkent shahri",
-  ];
-  const tuman = ["Andijon tumani", "Buxoro tumani", "Farg'ona tumani"];
+  const [regionsData, setRegionsData] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const [districtsData, setDistrictsData] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const [schoolsData, setSchoolsData] = useState<
+    { id: number; name: string }[]
+  >([]);
 
-  const maktab = ["Andijon maktabi", "Buxoro maktabi", "Farg'ona maktabi"];
+  const [selectedRegionId, setSelectedRegionId] = useState<number | null>(null);
+  const [selectedDistrictId, setSelectedDistrictId] = useState<number | null>(
+    null
+  );
 
   const categories = ["Mutaxassis", "1-toifa", "2-toifa", "Oliy"];
   const experiences = ["0-3 yil", "3-5 yil", "5-10 yil", "10 yildan ko'p"];
   const languages = ["O'zbek", "Rus"];
+
+  useEffect(() => {
+    axios.get("https://api.olympcentre.uz/api/region").then((res) => {
+      setRegionsData(res.data);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!selectedRegionId) return;
+    axios
+      .get(
+        `https://api.olympcentre.uz/api/district/?region=${selectedRegionId}`
+      )
+      .then((res) => {
+        setDistrictsData(res.data);
+        setFormData((prev) => ({ ...prev, district: "", school: "" }));
+        setSchoolsData([]);
+      });
+  }, [selectedRegionId]);
+
+  useEffect(() => {
+    if (!selectedDistrictId) return;
+    axios
+      .get(
+        `https://api.olympcentre.uz/api/school/?district=${selectedDistrictId}`
+      )
+      .then((res) => {
+        setSchoolsData(res.data);
+        setFormData((prev) => ({ ...prev, school: "" }));
+      });
+  }, [selectedDistrictId]);
 
   const handleInputChange = (field: string, value: string) => {
     if (field === "birthDate") {
@@ -70,7 +99,6 @@ const Index = () => {
         .replace(/[^A-Z]/g, "")
         .slice(0, 2);
     }
-
     if (field === "passportNumber") {
       value = value.replace(/\D/g, "").slice(0, 7);
     }
@@ -97,7 +125,6 @@ const Index = () => {
       "language",
       "phoneNumber",
       "telegramPhone",
-      "passportNumber",
     ];
 
     for (const field of required) {
@@ -112,21 +139,13 @@ const Index = () => {
     }
 
     const phoneRegex = /^\+998\d{9}$/;
-    if (!phoneRegex.test(formData.phoneNumber)) {
+    if (
+      !phoneRegex.test(formData.phoneNumber) ||
+      !phoneRegex.test(formData.telegramPhone)
+    ) {
       toast({
         title: "Xatolik",
-        description:
-          "Telefon raqam +998 formatida bo'lishi va 12 ta raqamdan oshmasligi kerak",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    if (!phoneRegex.test(formData.telegramPhone)) {
-      toast({
-        title: "Xatolik",
-        description:
-          "Telegram raqam +998 formatida va 12 raqamdan iborat bo'lishi kerak",
+        description: "Telefon raqam +998 formatida noto‘g‘ri",
         variant: "destructive",
       });
       return false;
@@ -135,8 +154,7 @@ const Index = () => {
     if (!/^[3-6]\d{13}$/.test(formData.jshshir)) {
       toast({
         title: "Xatolik",
-        description:
-          "JSHSHIR 14 xonali bo'lishi va 3,4,5,6 bilan boshlanishi kerak",
+        description: "JSHSHIR 14 xonali va 3-6 bilan boshlanishi kerak",
         variant: "destructive",
       });
       return false;
@@ -145,19 +163,24 @@ const Index = () => {
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    console.log("Form submitted:", formData);
-    toast({
-      title: "Muvaffaqiyat!",
-      description: "Ro'yxatdan o'tish muvaffaqiyatli yakunlandi",
-    });
-
-    setTimeout(() => {
+    try {
+      await axios.post("https://api.olympcentre.uz/api/teacher-registration/register/", formData);
+      toast({
+        title: "Muvaffaqiyat!",
+        description: "Ro'yxatdan o'tish muvaffaqiyatli yakunlandi",
+      });
       navigate("/success");
-    }, 1000);
+    } catch (error) {
+      toast({
+        title: "Xatolik",
+        description: "Server bilan muammo yuz berdi",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -169,45 +192,30 @@ const Index = () => {
         O'qituvchilar Olimpiadasi
       </h1>
 
-      {/* Personal Info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="flex flex-col">
-          <Label className="mb-1">Familiya</Label>
-          <Input
-            value={formData.lastName}
-            onChange={(e) => handleInputChange("lastName", e.target.value)}
-            placeholder="Familiyangiz"
-          />
-        </div>
-        <div className="flex flex-col">
-          <Label className="mb-1">Ism</Label>
-          <Input
-            value={formData.firstName}
-            onChange={(e) => handleInputChange("firstName", e.target.value)}
-            placeholder="Ismingiz"
-          />
-        </div>
-        <div className="flex flex-col">
-          <Label className="mb-1">Sharif</Label>
-          <Input
-            value={formData.middleName}
-            onChange={(e) => handleInputChange("middleName", e.target.value)}
-            placeholder="Sharifingiz"
-          />
-        </div>
-      </div>
-
-      {/* Birth Date */}
-      <div className="flex flex-col">
-        <Label className="mb-1">Tug'ilgan sana</Label>
-        <Input
-          placeholder="Kun/oy/yil"
-          value={formData.birthDate}
-          onChange={(e) => handleInputChange("birthDate", e.target.value)}
+        <InputBlock
+          label="Familiya"
+          value={formData.lastName}
+          onChange={(v) => handleInputChange("lastName", v)}
+        />
+        <InputBlock
+          label="Ism"
+          value={formData.firstName}
+          onChange={(v) => handleInputChange("firstName", v)}
+        />
+        <InputBlock
+          label="Sharif"
+          value={formData.middleName}
+          onChange={(v) => handleInputChange("middleName", v)}
         />
       </div>
 
-      {/* Passport */}
+      <InputBlock
+        label="Tug'ilgan sana"
+        value={formData.birthDate}
+        onChange={(v) => handleInputChange("birthDate", v)}
+      />
+
       <div className="flex flex-col">
         <Label className="mb-1">Passport ma'lumotlari</Label>
         <div className="grid grid-cols-2 gap-4">
@@ -217,7 +225,6 @@ const Index = () => {
             onChange={(e) =>
               handleInputChange("passportSeries", e.target.value)
             }
-            maxLength={2}
           />
           <Input
             placeholder="Raqami (1234567)"
@@ -225,12 +232,10 @@ const Index = () => {
             onChange={(e) =>
               handleInputChange("passportNumber", e.target.value)
             }
-            maxLength={7}
           />
         </div>
       </div>
 
-      {/* JSHSHIR */}
       <div className="flex flex-col gap-4">
         <Label className="mb-1">JSHSHIR</Label>
         <img
@@ -245,137 +250,70 @@ const Index = () => {
         />
       </div>
 
-      {/* Region, District, School */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <Label className="mb-1">Hudud</Label>
-          <Select onValueChange={(value) => handleInputChange("region", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Tanlang" />
-            </SelectTrigger>
-            <SelectContent>
-              {regions.map((r) => (
-                <SelectItem key={r} value={r}>
-                  {r}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SelectBlock
+          label="Hudud"
+          options={regionsData}
+          value={formData.region}
+          onChange={(val) => {
+            const region = regionsData.find((r) => r.name === val);
+            if (region) {
+              setSelectedRegionId(region.id);
+              handleInputChange("region", region.name);
+            }
+          }}
+        />
 
-        <div>
-          <Label className="mb-1">Tuman</Label>
-          <Select
-            onValueChange={(value) => handleInputChange("district", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Tanlang" />
-            </SelectTrigger>
-            <SelectContent>
-              {tuman.map((t) => (
-                <SelectItem key={t} value={t}>
-                  {t}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SelectBlock
+          label="Tuman"
+          options={districtsData}
+          value={formData.district}
+          onChange={(val) => {
+            const district = districtsData.find((d) => d.name === val);
+            if (district) {
+              setSelectedDistrictId(district.id);
+              handleInputChange("district", district.name);
+            }
+          }}
+        />
 
-        <div>
-          <Label className="mb-1">Maktab</Label>
-          <Select onValueChange={(value) => handleInputChange("school", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Tanlang" />
-            </SelectTrigger>
-            <SelectContent>
-              {maktab.map((m) => (
-                <SelectItem key={m} value={m}>
-                  {m}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SelectBlock
+          label="Maktab"
+          options={schoolsData}
+          value={formData.school}
+          onChange={(val) => handleInputChange("school", val)}
+        />
       </div>
 
-      {/* Category, Experience, Language */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <Label className="mb-1">Toifa</Label>
-          <Select
-            onValueChange={(value) => handleInputChange("category", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Tanlang" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label className="mb-1">Staj</Label>
-          <Select
-            onValueChange={(value) => handleInputChange("experience", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Tanlang" />
-            </SelectTrigger>
-            <SelectContent>
-              {experiences.map((e) => (
-                <SelectItem key={e} value={e}>
-                  {e}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label className="mb-1">Ta'lim tili</Label>
-          <Select
-            onValueChange={(value) => handleInputChange("language", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Tanlang" />
-            </SelectTrigger>
-            <SelectContent>
-              {languages.map((l) => (
-                <SelectItem key={l} value={l}>
-                  {l}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {[
+          { label: "Toifa", field: "category", values: categories },
+          { label: "Staj", field: "experience", values: experiences },
+          { label: "Ta'lim tili", field: "language", values: languages },
+        ].map(({ label, field, values }) => (
+          <SelectBlock
+            key={field}
+            label={label}
+            options={values.map((val) => ({ id: val, name: val }))}
+            value={formData[field as keyof typeof formData]}
+            onChange={(value) => handleInputChange(field, value)}
+          />
+        ))}
       </div>
 
-      {/* Phone Numbers */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="flex flex-col">
-          <Label className="mb-1">Telefon raqam</Label>
-          <Input
-            placeholder="+998901234567"
-            value={formData.phoneNumber}
-            onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-          />
-        </div>
-        <div className="flex flex-col">
-          <Label className="mb-1">Telegram raqam</Label>
-          <Input
-            placeholder="+998901234567"
-            value={formData.telegramPhone}
-            onChange={(e) => handleInputChange("telegramPhone", e.target.value)}
-          />
-        </div>
+        <InputBlock
+          label="Telefon raqam"
+          value={formData.phoneNumber}
+          onChange={(v) => handleInputChange("phoneNumber", v)}
+        />
+        <InputBlock
+          label="Telegram raqam"
+          value={formData.telegramPhone}
+          onChange={(v) => handleInputChange("telegramPhone", v)}
+        />
       </div>
 
-      {/* Submit */}
       <Button
         type="submit"
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg"
@@ -385,5 +323,52 @@ const Index = () => {
     </form>
   );
 };
+
+const InputBlock = ({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+}) => (
+  <div className="flex flex-col">
+    <Label className="mb-1">{label}</Label>
+    <Input
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={label}
+    />
+  </div>
+);
+
+const SelectBlock = ({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: { id: number | string; name: string }[];
+  value: string;
+  onChange: (val: string) => void;
+}) => (
+  <div>
+    <Label className="mb-1">{label}</Label>
+    <Select onValueChange={onChange} value={value}>
+      <SelectTrigger>
+        <SelectValue placeholder="Tanlang" />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((item) => (
+          <SelectItem key={item.id} value={item.name}>
+            {item.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+);
 
 export default Index;
