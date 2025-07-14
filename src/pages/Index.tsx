@@ -289,7 +289,7 @@ const Index = () => {
         {[
           { label: "Toifa", field: "category", values: categories },
           { label: "Staj", field: "experience", values: experiences },
-          { label: "Ta'lim tili", field: "language", values: languages },
+          { label: "Test topshirish tili", field: "language", values: languages },
         ].map(({ label, field, values }) => (
           <SelectBlock
             key={field}
