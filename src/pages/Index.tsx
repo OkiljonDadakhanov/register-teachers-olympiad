@@ -55,7 +55,7 @@ const Index = () => {
   const languages = ["O'zbek", "Rus"];
 
   useEffect(() => {
-    axios.get("https://api.olympcentre.uz/api/region").then((res) => {
+    axios.get("https://api.olympcentre.uz/api/region/").then((res) => {
       setRegionsData(res.data);
     });
   }, []);
