@@ -25,9 +25,9 @@ const Index = () => {
     passportSeries: "",
     passportNumber: "",
     jshshir: "",
-    region: "",
-    district: "",
-    school: "",
+    region: 0,
+    district: 0,
+    school: 0,
     category: "",
     experience: "",
     language: "",
@@ -68,7 +68,7 @@ const Index = () => {
       )
       .then((res) => {
         setDistrictsData(res.data);
-        setFormData((prev) => ({ ...prev, district: "", school: "" }));
+        setFormData((prev) => ({ ...prev, district: 0, school: 0 }));
         setSchoolsData([]);
       });
   }, [selectedRegionId]);
@@ -81,28 +81,32 @@ const Index = () => {
       )
       .then((res) => {
         setSchoolsData(res.data);
-        setFormData((prev) => ({ ...prev, school: "" }));
+        setFormData((prev) => ({ ...prev, school: 0 }));
       });
   }, [selectedDistrictId]);
 
-  const handleInputChange = (field: string, value: string) => {
-    if (field === "birthDate") {
+  const handleInputChange = (field: string, value: string | number) => {
+    if (field === "birthDate" && typeof value === "string") {
       value = value
         .replace(/[^\d]/g, "")
         .replace(/(\d{2})(\d{0,2})(\d{0,4})/, (_, d, m, y) =>
           [d, m, y].filter(Boolean).join("/")
         );
     }
-    if (field === "passportSeries") {
+    if (field === "passportSeries" && typeof value === "string") {
       value = value
         .toUpperCase()
         .replace(/[^A-Z]/g, "")
         .slice(0, 2);
     }
-    if (field === "passportNumber") {
+    if (field === "passportNumber" && typeof value === "string") {
       value = value.replace(/\D/g, "").slice(0, 7);
     }
-    if (field === "telegramPhone" && !value.startsWith("+998")) {
+    if (
+      field === "telegramPhone" &&
+      typeof value === "string" &&
+      !value.startsWith("+998")
+    ) {
       value = "+998" + value.replace(/^\+998/, "");
     }
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -168,7 +172,10 @@ const Index = () => {
     if (!validateForm()) return;
 
     try {
-      await axios.post("https://api.olympcentre.uz/api/teacher-registration/register/", formData);
+      await axios.post(
+        "https://api.olympcentre.uz/api/teacher-registration/register/",
+        formData
+      );
       toast({
         title: "Muvaffaqiyat!",
         description: "Ro'yxatdan o'tish muvaffaqiyatli yakunlandi",
@@ -191,6 +198,11 @@ const Index = () => {
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-4">
         O'qituvchilar Olimpiadasi
       </h1>
+
+      <p className="text-sm text-center text-red-600 font-medium">
+        Akademik litseylar, kasb hunar maktablari, professional ta'lim
+        muassasalari o'qituvchilari ishtirok etmaydi.
+      </p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <InputBlock
@@ -217,7 +229,7 @@ const Index = () => {
       />
 
       <div className="flex flex-col">
-        <Label className="mb-1">Passport ma'lumotlari</Label>
+        <Label className="mb-1">Pasport ma'lumotlari</Label>
         <div className="grid grid-cols-2 gap-4">
           <Input
             placeholder="Seriya (AA)"
@@ -237,14 +249,14 @@ const Index = () => {
       </div>
 
       <div className="flex flex-col gap-4">
-        <Label className="mb-1">JSHSHIR</Label>
+        <Label className="mb-1">JShShIR</Label>
         <img
           src="/passport.jpg"
-          alt="JSHSHIR ko'rsatmasi"
+          alt="JShShIR ko'rsatmasi"
           className="w-full max-w-md mx-auto object-contain border rounded-lg"
         />
         <Input
-          placeholder="14 xonali JSHSHIR"
+          placeholder="14 xonali JShShIR"
           value={formData.jshshir}
           onChange={(e) => handleInputChange("jshshir", e.target.value)}
         />
@@ -256,10 +268,10 @@ const Index = () => {
           options={regionsData}
           value={formData.region}
           onChange={(val) => {
-            const region = regionsData.find((r) => r.name === val);
+            const region = regionsData.find((r) => r.id === +val);
             if (region) {
               setSelectedRegionId(region.id);
-              handleInputChange("region", region.name);
+              handleInputChange("region", region.id);
             }
           }}
         />
@@ -269,10 +281,10 @@ const Index = () => {
           options={districtsData}
           value={formData.district}
           onChange={(val) => {
-            const district = districtsData.find((d) => d.name === val);
+            const district = districtsData.find((d) => d.id === +val);
             if (district) {
               setSelectedDistrictId(district.id);
-              handleInputChange("district", district.name);
+              handleInputChange("district", district.id);
             }
           }}
         />
@@ -281,21 +293,29 @@ const Index = () => {
           label="Maktab"
           options={schoolsData}
           value={formData.school}
-          onChange={(val) => handleInputChange("school", val)}
+          onChange={(val) => handleInputChange("school", +val)}
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
           { label: "Toifa", field: "category", values: categories },
-          { label: "Staj", field: "experience", values: experiences },
-          { label: "Test topshirish tili", field: "language", values: languages },
+          {
+            label: "Pedagogik ish staji",
+            field: "experience",
+            values: experiences,
+          },
+          {
+            label: "Test topshirish tili",
+            field: "language",
+            values: languages,
+          },
         ].map(({ label, field, values }) => (
           <SelectBlock
             key={field}
             label={label}
             options={values.map((val) => ({ id: val, name: val }))}
-            value={formData[field as keyof typeof formData]}
+            value={formData[field as keyof typeof formData] as string}
             onChange={(value) => handleInputChange(field, value)}
           />
         ))}
@@ -351,18 +371,18 @@ const SelectBlock = ({
 }: {
   label: string;
   options: { id: number | string; name: string }[];
-  value: string;
+  value: string | number;
   onChange: (val: string) => void;
 }) => (
   <div>
     <Label className="mb-1">{label}</Label>
-    <Select onValueChange={onChange} value={value}>
+    <Select onValueChange={onChange} value={String(value)}>
       <SelectTrigger>
         <SelectValue placeholder="Tanlang" />
       </SelectTrigger>
       <SelectContent>
         {options.map((item) => (
-          <SelectItem key={item.id} value={item.name}>
+          <SelectItem key={item.id} value={String(item.id)}>
             {item.name}
           </SelectItem>
         ))}

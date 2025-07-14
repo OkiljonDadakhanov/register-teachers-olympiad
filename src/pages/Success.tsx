@@ -19,9 +19,7 @@ const Success = () => {
             <p className="text-lg text-gray-600 mb-4">
               Siz muvaffaqiyatli ro'yxatdan o'tdingiz
             </p>
-            <p className="text-gray-500">
-              Tez orada siz bilan bog'lanamiz
-            </p>
+         
           </div>
           
           <div className="space-y-4">
