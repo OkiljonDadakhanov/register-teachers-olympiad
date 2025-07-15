@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
+import { AxiosError } from "axios";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -188,14 +189,32 @@ const Index = () => {
         description: "Ro'yxatdan o'tish muvaffaqiyatli yakunlandi",
       });
       navigate("/success");
-    } catch (error) {
-      toast({
-        title: "Xatolik",
-        description: "Server bilan muammo yuz berdi",
-        variant: "destructive",
-      });
-    }
-  };
+   } catch (err) {
+  const error = err as AxiosError<Record<string, string[]>>;
+
+  const errorData = error?.response?.data;
+
+  if (errorData && typeof errorData === "object") {
+    const messages = Object.entries(errorData)
+      .map(([key, val]) => `${val.join(" ")}`)
+      .join("\n");
+
+    toast({
+      title: "Xatolik",
+      description: messages,
+      variant: "destructive",
+    });
+  } else {
+    toast({
+      title: "Xatolik",
+      description: "Kutilmagan server xatosi yuz berdi",
+      variant: "destructive",
+    });
+  }
+   }
+   }
+   
+    
 
   return (
     <form
