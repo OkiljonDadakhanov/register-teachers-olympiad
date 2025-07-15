@@ -249,7 +249,7 @@ const Index = () => {
       </div>
 
       <InputBlock
-        label="Tug'ilgan sana (oy/kuni/yil)"
+        label="Tug'ilgan sana (kun/oy/yil)"
         value={formData.birthDate}
         onChange={(v) => handleInputChange("birthDate", v)}
       />
