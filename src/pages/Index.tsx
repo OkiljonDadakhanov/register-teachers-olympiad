@@ -28,6 +28,7 @@ const Index = () => {
     region: 0,
     district: 0,
     school: 0,
+    subject: "", // ✅ added
     category: "",
     experience: "",
     language: "",
@@ -53,6 +54,11 @@ const Index = () => {
   const categories = ["Mutaxassis", "1-toifa", "2-toifa", "Oliy"];
   const experiences = ["0-3 yil", "3-5 yil", "5-10 yil", "10 yildan ko'p"];
   const languages = ["O'zbek", "Rus"];
+  const subjects = [
+    "Biologiya",
+    "Matematika",
+    "Informatika va axborot texnologiyalari",
+  ]; // ✅ added
 
   useEffect(() => {
     axios.get("https://api.olympcentre.uz/api/region/").then((res) => {
@@ -124,6 +130,7 @@ const Index = () => {
       "region",
       "district",
       "school",
+      "subject", // ✅ added
       "category",
       "experience",
       "language",
@@ -298,27 +305,30 @@ const Index = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          { label: "Toifa", field: "category", values: categories },
-          {
-            label: "Pedagogik ish staji",
-            field: "experience",
-            values: experiences,
-          },
-          {
-            label: "Test topshirish tili",
-            field: "language",
-            values: languages,
-          },
-        ].map(({ label, field, values }) => (
-          <SelectBlock
-            key={field}
-            label={label}
-            options={values.map((val) => ({ id: val, name: val }))}
-            value={formData[field as keyof typeof formData] as string}
-            onChange={(value) => handleInputChange(field, value)}
-          />
-        ))}
+        <SelectBlock
+          label="Fan nomi"
+          options={subjects.map((val) => ({ id: val, name: val }))}
+          value={formData.subject}
+          onChange={(value) => handleInputChange("subject", value)}
+        />
+        <SelectBlock
+          label="Toifa"
+          options={categories.map((val) => ({ id: val, name: val }))}
+          value={formData.category}
+          onChange={(value) => handleInputChange("category", value)}
+        />
+        <SelectBlock
+          label="Pedagogik ish staji"
+          options={experiences.map((val) => ({ id: val, name: val }))}
+          value={formData.experience}
+          onChange={(value) => handleInputChange("experience", value)}
+        />
+        <SelectBlock
+          label="Test topshirish tili"
+          options={languages.map((val) => ({ id: val, name: val }))}
+          value={formData.language}
+          onChange={(value) => handleInputChange("language", value)}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
