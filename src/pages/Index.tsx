@@ -11,20 +11,9 @@ const Index = () => {
             O‘qituvchilar olimpiadasiga ro‘yxatdan o‘tish
           </h1>
           <p className="text-lg text-red-600 font-semibold">
-            Ro‘yxatdan o‘tish yakunlangan!
+            Ro‘yxatdan o‘tish yakunlandi!
           </p>
-          <p className="mt-4 text-gray-700 leading-relaxed">
-            Hurmatli foydalanuvchi! Hozirda o‘qituvchilar olimpiadasi uchun
-            ro‘yxatdan o‘tish jarayoni yopilgan.
-          </p>
-          <p className="mt-2 text-gray-700 leading-relaxed">
-            Agar siz ro‘yxatdan o‘tishga ulgurmadingiz, iltimos keyingi
-            bosqichlarni va e’lonlarni kuzatib boring. Yaqin orada yangi
-            imkoniyatlar e’lon qilinadi.
-          </p>
-          <p className="mt-2 text-gray-700 leading-relaxed">
-            E’tiboringiz uchun rahmat! Biz bilan qoling!
-          </p>
+         
         </CardContent>
       </Card>
     </div>
